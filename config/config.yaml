@@ -87,6 +87,24 @@ notification:
     ntfy_token: "" # ntfy访问令牌（可选，用于私有主题）
     bark_url: "" # Bark推送URL（格式：https://api.day.app/your_device_key 或自建服务器地址）
 
+# AI 分析配置
+ai_analysis:
+  enabled: true # 是否启用 AI 分析功能
+  provider: "deepseek"
+  api_key: "" # 请在此处填写您的 DeepSeek API Key (或设置环境变量 DEEPSEEK_API_KEY)
+  base_url: "https://api.deepseek.com"
+  model: "deepseek-chat" # 使用的模型 (deepseek-chat 为 V3, deepseek-reasoner 为 R1)
+  prompt: "请作为专业的金融分析师，对以下财经新闻热点进行分类分析。请使用 Markdown 格式，使用 ### 作为标题分隔不同板块（如：市场情绪、板块异动、宏观政策等），重点概括核心逻辑与潜在影响，保持条理清晰，不要使用代码块。"
+  target_platforms: # 需要分析的平台ID列表
+    - "wallstreetcn-hot"
+    - "wallstreetcn-quick"
+    - "wallstreetcn-news"
+    - "cls-hot"
+    - "gelonghui"
+    - "xueqiu"
+    - "jin10"
+    - "fastbull"
+
 # 用于让关注度更高的新闻在更前面显示，即用算法重新组合不同平台的热搜排序形成你侧重的热搜，合起来是 1 就行
 weight:
   rank_weight: 0.6 # 排名权重
@@ -96,25 +114,25 @@ weight:
 # name 可以定义任意名称，只具有显示作用，即使项目运行了几天后，忽然改掉 name 也不会影响代码的正常运行
 # name 可以定义任意名称，只具有显示作用，即使项目运行了几天后，忽然改掉 name 也不会影响代码的正常运行
 platforms:
-  # === 综合新闻媒体类 ===
-  - id: "toutiao"
-    name: "今日头条"
-  - id: "baidu"
-    name: "百度热搜"
-  - id: "thepaper"
-    name: "澎湃新闻"
-  - id: "ifeng"
-    name: "凤凰网"
-  - id: "cankaoxiaoxi"
-    name: "参考消息"
-  - id: "sputniknewscn"
-    name: "卫星通讯社"
-  - id: "zaobao"
-    name: "联合早报"
-  - id: "mktnews"
-    name: "MKT新闻"
-  - id: "kaopu"
-    name: "靠谱新闻"
+#  # === 综合新闻媒体类 ===
+#  - id: "toutiao"
+#    name: "今日头条"
+#  - id: "baidu"
+#    name: "百度热搜"
+#  - id: "thepaper"
+#    name: "澎湃新闻"
+#  - id: "ifeng"
+#    name: "凤凰网"
+#  - id: "cankaoxiaoxi"
+#    name: "参考消息"
+#  - id: "sputniknewscn"
+#    name: "卫星通讯社"
+#  - id: "zaobao"
+#    name: "联合早报"
+#  - id: "mktnews"
+#    name: "MKT新闻"
+#  - id: "kaopu"
+#    name: "靠谱新闻"
 
   # === 财经投资类 ===
   - id: "wallstreetcn-hot"
@@ -134,45 +152,45 @@ platforms:
   - id: "fastbull"
     name: "快讯通"
 
-  # === 社交/短视频/娱乐类 ===
-  - id: "weibo"
-    name: "微博"
-  - id: "douyin"
-    name: "抖音"
-  - id: "bilibili-hot-search"
-    name: "bilibili 热搜"
-  - id: "tieba"
-    name: "贴吧"
-  - id: "zhihu"
-    name: "知乎"
-  - id: "hupu"
-    name: "虎扑"
-
-  # === 科技类平台 ===
-  - id: "ithome"
-    name: "IT之家"
-  - id: "juejin"
-    name: "掘金"
-  - id: "github"
-    name: "GitHub"
-  - id: "hackernews"
-    name: "Hacker News"
-  - id: "solidot"
-    name: "Solidot"
-  - id: "v2ex"
-    name: "V2EX"
-  - id: "nowcoder"
-    name: "牛客网"
-  - id: "pcbeta"
-    name: "远景论坛"
-  - id: "sspai"
-    name: "少数派"
-  - id: "producthunt"
-    name: "ProductHunt"
-
-  # === 其他/工具类 ===
-  - id: "chongbuluo"
-    name: "虫部落"
+#  # === 社交/短视频/娱乐类 ===
+#  - id: "weibo"
+#    name: "微博"
+#  - id: "douyin"
+#    name: "抖音"
+#  - id: "bilibili-hot-search"
+#    name: "bilibili 热搜"
+#  - id: "tieba"
+#    name: "贴吧"
+#  - id: "zhihu"
+#    name: "知乎"
+#  - id: "hupu"
+#    name: "虎扑"
+#
+#  # === 科技类平台 ===
+#  - id: "ithome"
+#    name: "IT之家"
+#  - id: "juejin"
+#    name: "掘金"
+#  - id: "github"
+#    name: "GitHub"
+#  - id: "hackernews"
+#    name: "Hacker News"
+#  - id: "solidot"
+#    name: "Solidot"
+#  - id: "v2ex"
+#    name: "V2EX"
+#  - id: "nowcoder"
+#    name: "牛客网"
+#  - id: "pcbeta"
+#    name: "远景论坛"
+#  - id: "sspai"
+#    name: "少数派"
+#  - id: "producthunt"
+#    name: "ProductHunt"
+#
+#  # === 其他/工具类 ===
+#  - id: "chongbuluo"
+#    name: "虫部落"
 
   # ======================================================
   # 暂时失败的渠道（可能需要修复或接口已变更）

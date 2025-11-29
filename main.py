@@ -19,6 +19,8 @@ import pytz
 import requests
 import yaml
 
+from mcp_server.services.ai_service import AIService
+
 
 VERSION = "3.3.0"
 
@@ -142,6 +144,17 @@ def load_config():
             "HOTNESS_WEIGHT": config_data["weight"]["hotness_weight"],
         },
         "PLATFORMS": config_data["platforms"],
+    }
+
+    # AI Analysis Config
+    config["AI_ANALYSIS"] = {
+        "ENABLED": config_data.get("ai_analysis", {}).get("enabled", False),
+        "PROVIDER": config_data.get("ai_analysis", {}).get("provider", "siliconflow"),
+        "API_KEY": config_data.get("ai_analysis", {}).get("api_key", ""),
+        "BASE_URL": config_data.get("ai_analysis", {}).get("base_url", "https://api.siliconflow.cn/v1"),
+        "MODEL": config_data.get("ai_analysis", {}).get("model", "deepseek-ai/DeepSeek-V3"),
+        "PROMPT": config_data.get("ai_analysis", {}).get("prompt", ""),
+        "TARGET_PLATFORMS": config_data.get("ai_analysis", {}).get("target_platforms", []),
     }
 
     # 通知渠道配置（环境变量优先）
@@ -1419,6 +1432,8 @@ def prepare_report_data(
     new_titles: Optional[Dict] = None,
     id_to_name: Optional[Dict] = None,
     mode: str = "daily",
+    ai_summary: Optional[str] = None,
+    ai_sources: Optional[List[str]] = None,
 ) -> Dict:
     """准备报告数据"""
     processed_new_titles = []
@@ -1504,6 +1519,8 @@ def prepare_report_data(
         "stats": processed_stats,
         "new_titles": processed_new_titles,
         "failed_ids": failed_ids or [],
+        "ai_summary": ai_summary,
+        "ai_sources": ai_sources or [],
         "total_new_count": sum(
             len(source["titles"]) for source in processed_new_titles
         ),
@@ -1676,6 +1693,8 @@ def generate_html_report(
     mode: str = "daily",
     is_daily_summary: bool = False,
     update_info: Optional[Dict] = None,
+    ai_summary: Optional[str] = None,
+    ai_sources: Optional[List[str]] = None,
 ) -> str:
     """生成HTML报告"""
     if is_daily_summary:
@@ -1690,7 +1709,9 @@ def generate_html_report(
 
     file_path = get_output_path("html", filename)
 
-    report_data = prepare_report_data(stats, failed_ids, new_titles, id_to_name, mode)
+    report_data = prepare_report_data(
+        stats, failed_ids, new_titles, id_to_name, mode, ai_summary, ai_sources
+    )
 
     html_content = render_html_content(
         report_data, total_titles, is_daily_summary, mode, update_info
@@ -1723,6 +1744,7 @@ def render_html_content(
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>热点新闻分析</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
         <style>
             * { box-sizing: border-box; }
             body { 
@@ -1732,6 +1754,79 @@ def render_html_content(
                 background: #fafafa;
                 color: #333;
                 line-height: 1.5;
+            }
+            
+            /* Markdown Content Styles */
+            .ai-content h1, .ai-content h2, .ai-content h3 { 
+                margin-top: 1.5em; 
+                margin-bottom: 0.8em; 
+                font-size: 1.1em; 
+                color: #1a1a1a;
+                font-weight: 700;
+            }
+            /* Make H3 look like the section headers */
+            .ai-content h3 {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .ai-content h3::before {
+                content: '';
+                display: inline-block;
+                width: 4px;
+                height: 1em;
+                background: #4f46e5;
+                border-radius: 2px;
+            }
+            
+            .ai-content ul, .ai-content ol { 
+                padding-left: 0; 
+                list-style: none; 
+                margin: 0.5em 0; 
+            }
+            .ai-content li {
+                margin-bottom: 0.8em;
+                background: white;
+                padding: 12px;
+                border-radius: 8px;
+                border: 1px solid #e5e7eb;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            }
+            .ai-content p { margin: 0.5em 0; }
+            .ai-content strong { color: #4f46e5; font-weight: 600; }
+            
+            /* Reference Source Styles */
+            .source-ref {
+                margin-top: 12px;
+                padding-top: 12px;
+                border-top: 1px dashed #dcdcdc;
+                font-size: 12px;
+            }
+            .source-ref summary {
+                color: #666;
+                cursor: pointer;
+                user-select: none;
+                font-weight: 500;
+            }
+            .source-ref summary:hover { color: #4f46e5; }
+            .source-ref-list {
+                margin-top: 8px;
+                max-height: 200px;
+                overflow-y: auto;
+                padding-left: 0;
+                list-style: none;
+                color: #555;
+            }
+            .source-ref-item {
+                padding: 2px 0;
+                border-bottom: 1px solid #eee;
+                display: flex;
+            }
+            .source-ref-item:last-child { border-bottom: none; }
+            .source-ref-num {
+                color: #999;
+                margin-right: 8px;
+                min-width: 20px;
             }
             
             .container {
@@ -2205,6 +2300,51 @@ def render_html_content(
             
             <div class="content">"""
 
+    # AI Summary Section
+    if report_data.get("ai_summary") or report_data.get("ai_sources"):
+        html += """
+        <div class="ai-section" style="margin-bottom: 24px; padding: 16px; background: #f3f0ff; border-radius: 8px; border: 1px solid #e9e5ff;">"""
+
+        if report_data.get("ai_summary"):
+            # Prepare raw content for JS
+            raw_ai_summary = report_data['ai_summary'].replace('`', '\`').replace('$', '\$')
+            
+            html += f"""
+            <div style="color: #4f46e5; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                <span>🤖 AI 智能分析</span>
+            </div>
+            <div id="ai-content" class="ai-content" style="font-size: 14px; color: #333; line-height: 1.6;"></div>
+            <script>
+                document.getElementById('ai-content').innerHTML = marked.parse(`{raw_ai_summary}`);
+            </script>"""
+        else:
+            html += """
+            <div style="color: #dc2626; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                <span>⚠️ AI 分析未生成</span>
+            </div>
+            <div style="font-size: 13px; color: #666; margin-bottom: 12px;">
+                由于网络超时或接口异常，AI 暂时无法生成分析报告。您可以直接查看下方用于分析的原始新闻列表。
+            </div>"""
+
+        # Reference Sources
+        if report_data.get("ai_sources"):
+            details_attr = " open" if not report_data.get("ai_summary") else ""
+            html += """
+            <div class="source-ref">
+                <details{details_attr}>
+                    <summary>查看分析用到的 {count} 条原始新闻标题</summary>
+                    <ul class="source-ref-list">""".format(details_attr=details_attr, count=len(report_data["ai_sources"]))
+            
+            for idx, title in enumerate(report_data["ai_sources"], 1):
+                html += f'<li class="source-ref-item"><span class="source-ref-num">{idx}.</span><span>{html_escape(title)}</span></li>'
+            
+            html += """
+                    </ul>
+                </details>
+            </div>"""
+        
+        html += "</div>"
+
     # 处理失败ID错误信息
     if report_data["failed_ids"]:
         html += """
@@ -2388,16 +2528,7 @@ def render_html_content(
                     由 <span class="project-name">TrendRadar</span> 生成 · 
                     <a href="https://github.com/sansan0/TrendRadar" target="_blank" class="footer-link">
                         GitHub 开源项目
-                    </a>"""
-
-    if update_info:
-        html += f"""
-                    <br>
-                    <span style="color: #ea580c; font-weight: 500;">
-                        发现新版本 {update_info['remote_version']}，当前版本 {update_info['current_version']}
-                    </span>"""
-
-    html += """
+                    </a>
                 </div>
             </div>
         </div>
@@ -2958,6 +3089,19 @@ def split_content_into_batches(
         if update_info:
             base_footer += f"\n> TrendRadar 发现新版本 **{update_info['remote_version']}**，当前 **{update_info['current_version']}**"
 
+    # AI Summary Formatting
+    ai_summary_text = ""
+    if report_data.get("ai_summary"):
+        summary = report_data["ai_summary"]
+        if format_type in ["wework", "dingtalk", "ntfy"]:
+            ai_summary_text = f"🤖 **AI 智能分析**\n{summary}\n\n---\n\n"
+        elif format_type == "telegram":
+            ai_summary_text = f"🤖 AI 智能分析\n{summary}\n\n"
+        elif format_type == "feishu":
+            ai_summary_text = f"🤖 **AI 智能分析**\n{summary}\n\n"
+        else:
+            ai_summary_text = f"🤖 AI 智能分析\n{summary}\n\n"
+
     stats_header = ""
     if report_data["stats"]:
         if format_type == "wework":
@@ -2971,7 +3115,7 @@ def split_content_into_batches(
         elif format_type == "dingtalk":
             stats_header = f"📊 **热点词汇统计**\n\n"
 
-    current_batch = base_header
+    current_batch = base_header + ai_summary_text
     current_batch_has_content = False
 
     if (
@@ -2986,7 +3130,7 @@ def split_content_into_batches(
         else:
             mode_text = "暂无匹配的热点词汇"
         simple_content = f"📭 {mode_text}\n\n"
-        final_content = base_header + simple_content + base_footer
+        final_content = base_header + ai_summary_text + simple_content + base_footer
         batches.append(final_content)
         return batches
 
@@ -3373,6 +3517,7 @@ def send_to_notifications(
     proxy_url: Optional[str] = None,
     mode: str = "daily",
     html_file_path: Optional[str] = None,
+    ai_summary: Optional[str] = None,
 ) -> Dict[str, bool]:
     """发送数据到多个通知平台"""
     results = {}
@@ -3396,7 +3541,9 @@ def send_to_notifications(
             else:
                 print(f"推送窗口控制：今天首次推送")
 
-    report_data = prepare_report_data(stats, failed_ids, new_titles, id_to_name, mode)
+    report_data = prepare_report_data(
+        stats, failed_ids, new_titles, id_to_name, mode, ai_summary
+    )
 
     feishu_url = CONFIG["FEISHU_WEBHOOK_URL"]
     dingtalk_url = CONFIG["DINGTALK_WEBHOOK_URL"]
@@ -4310,6 +4457,7 @@ class NewsAnalyzer:
         self.proxy_url = None
         self._setup_proxy()
         self.data_fetcher = DataFetcher(self.proxy_url)
+        self.ai_service = AIService(CONFIG.get("AI_ANALYSIS", {}))
 
         if self.is_github_actions:
             self._check_version_update()
@@ -4465,7 +4613,7 @@ class NewsAnalyzer:
         id_to_name: Dict,
         failed_ids: Optional[List] = None,
         is_daily_summary: bool = False,
-    ) -> Tuple[List[Dict], str]:
+    ) -> Tuple[List[Dict], str, Optional[str]]:
         """统一的分析流水线：数据处理 → 统计计算 → HTML生成"""
 
         # 统计计算
@@ -4480,6 +4628,25 @@ class NewsAnalyzer:
             mode=mode,
         )
 
+        # AI Analysis
+        ai_summary = None
+        ai_sources = []
+        if self.ai_service.enabled:
+            titles_to_analyze = []
+            for source_id, titles_data in data_source.items():
+                if self.ai_service.should_analyze_platform(source_id):
+                    titles_to_analyze.extend(titles_data.keys())
+            
+            if titles_to_analyze:
+                # Limit titles to prevent huge prompt, prioritize by relevance if possible
+                # For now just take top 50
+                if len(titles_to_analyze) > 50:
+                    ai_sources = titles_to_analyze[:50]
+                else:
+                    ai_sources = titles_to_analyze
+                
+                ai_summary = self.ai_service.analyze_titles(ai_sources)
+
         # HTML生成
         html_file = generate_html_report(
             stats,
@@ -4490,9 +4657,11 @@ class NewsAnalyzer:
             mode=mode,
             is_daily_summary=is_daily_summary,
             update_info=self.update_info if CONFIG["SHOW_VERSION_UPDATE"] else None,
+            ai_summary=ai_summary,
+            ai_sources=ai_sources,
         )
 
-        return stats, html_file
+        return stats, html_file, ai_summary
 
     def _send_notification_if_needed(
         self,
@@ -4503,6 +4672,7 @@ class NewsAnalyzer:
         new_titles: Optional[Dict] = None,
         id_to_name: Optional[Dict] = None,
         html_file_path: Optional[str] = None,
+        ai_summary: Optional[str] = None,
     ) -> bool:
         """统一的通知发送逻辑，包含所有判断条件"""
         has_notification = self._has_notification_configured()
@@ -4522,6 +4692,7 @@ class NewsAnalyzer:
                 self.proxy_url,
                 mode=mode,
                 html_file_path=html_file_path,
+                ai_summary=ai_summary,
             )
             return True
         elif CONFIG["ENABLE_NOTIFICATION"] and not has_notification:
@@ -4562,7 +4733,7 @@ class NewsAnalyzer:
         )
 
         # 运行分析流水线
-        stats, html_file = self._run_analysis_pipeline(
+        stats, html_file, ai_summary = self._run_analysis_pipeline(
             all_results,
             mode_strategy["summary_mode"],
             title_info,
@@ -4584,6 +4755,7 @@ class NewsAnalyzer:
             new_titles=new_titles,
             id_to_name=id_to_name,
             html_file_path=html_file,
+            ai_summary=ai_summary,
         )
 
         return html_file
@@ -4603,7 +4775,7 @@ class NewsAnalyzer:
         )
 
         # 运行分析流水线
-        _, html_file = self._run_analysis_pipeline(
+        _, html_file, _ = self._run_analysis_pipeline(
             all_results,
             mode,
             title_info,
@@ -4691,7 +4863,7 @@ class NewsAnalyzer:
                     f"current模式：使用过滤后的历史数据，包含平台：{list(all_results.keys())}"
                 )
 
-                stats, html_file = self._run_analysis_pipeline(
+                stats, html_file, ai_summary = self._run_analysis_pipeline(
                     all_results,
                     self.report_mode,
                     historical_title_info,
@@ -4717,13 +4889,14 @@ class NewsAnalyzer:
                         new_titles=historical_new_titles,
                         id_to_name=combined_id_to_name,
                         html_file_path=html_file,
+                        ai_summary=ai_summary,
                     )
             else:
                 print("❌ 严重错误：无法读取刚保存的数据文件")
                 raise RuntimeError("数据一致性检查失败：保存后立即读取失败")
         else:
             title_info = self._prepare_current_title_info(results, time_info)
-            stats, html_file = self._run_analysis_pipeline(
+            stats, html_file, ai_summary = self._run_analysis_pipeline(
                 results,
                 self.report_mode,
                 title_info,
@@ -4746,6 +4919,7 @@ class NewsAnalyzer:
                     new_titles=new_titles,
                     id_to_name=id_to_name,
                     html_file_path=html_file,
+                    ai_summary=ai_summary,
                 )
 
         # 生成汇总报告（如果需要）
@@ -4762,14 +4936,26 @@ class NewsAnalyzer:
 
         # 打开浏览器（仅在非容器环境）
         if self._should_open_browser() and html_file:
-            if summary_html:
-                summary_url = "file://" + str(Path(summary_html).resolve())
-                print(f"正在打开汇总报告: {summary_url}")
-                webbrowser.open(summary_url)
-            else:
-                file_url = "file://" + str(Path(html_file).resolve())
-                print(f"正在打开HTML报告: {file_url}")
-                webbrowser.open(file_url)
+            try:
+                import subprocess
+                import platform
+                
+                url_to_open = summary_html if summary_html else html_file
+                abs_path = str(Path(url_to_open).resolve())
+                file_url = "file://" + abs_path
+                
+                print(f"正在打开报告: {file_url}")
+                
+                if platform.system() == 'Darwin':       # macOS
+                    subprocess.run(['open', abs_path], check=False)
+                elif platform.system() == 'Windows':    # Windows
+                    os.startfile(abs_path)
+                else:                                   # Linux
+                    webbrowser.open(file_url)
+                    
+            except Exception as e:
+                print(f"尝试打开浏览器时出错 (可忽略): {e}")
+                
         elif self.is_docker_container and html_file:
             if summary_html:
                 print(f"汇总报告已生成（Docker环境）: {summary_html}")
@@ -4782,6 +4968,9 @@ class NewsAnalyzer:
         """执行分析流程"""
         try:
             self._initialize_and_check_config()
+
+            if not CONFIG["ENABLE_CRAWLER"]:
+                return
 
             mode_strategy = self._get_mode_strategy()
 

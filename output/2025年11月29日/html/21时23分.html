@@ -6,7 +6,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>热点新闻分析</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
         <style>
             * { box-sizing: border-box; }
             body { 
@@ -16,79 +15,6 @@
                 background: #fafafa;
                 color: #333;
                 line-height: 1.5;
-            }
-            
-            /* Markdown Content Styles */
-            .ai-content h1, .ai-content h2, .ai-content h3 { 
-                margin-top: 1.5em; 
-                margin-bottom: 0.8em; 
-                font-size: 1.1em; 
-                color: #1a1a1a;
-                font-weight: 700;
-            }
-            /* Make H3 look like the section headers */
-            .ai-content h3 {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .ai-content h3::before {
-                content: '';
-                display: inline-block;
-                width: 4px;
-                height: 1em;
-                background: #4f46e5;
-                border-radius: 2px;
-            }
-            
-            .ai-content ul, .ai-content ol { 
-                padding-left: 0; 
-                list-style: none; 
-                margin: 0.5em 0; 
-            }
-            .ai-content li {
-                margin-bottom: 0.8em;
-                background: white;
-                padding: 12px;
-                border-radius: 8px;
-                border: 1px solid #e5e7eb;
-                box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-            }
-            .ai-content p { margin: 0.5em 0; }
-            .ai-content strong { color: #4f46e5; font-weight: 600; }
-            
-            /* Reference Source Styles */
-            .source-ref {
-                margin-top: 12px;
-                padding-top: 12px;
-                border-top: 1px dashed #dcdcdc;
-                font-size: 12px;
-            }
-            .source-ref summary {
-                color: #666;
-                cursor: pointer;
-                user-select: none;
-                font-weight: 500;
-            }
-            .source-ref summary:hover { color: #4f46e5; }
-            .source-ref-list {
-                margin-top: 8px;
-                max-height: 200px;
-                overflow-y: auto;
-                padding-left: 0;
-                list-style: none;
-                color: #555;
-            }
-            .source-ref-item {
-                padding: 2px 0;
-                border-bottom: 1px solid #eee;
-                display: flex;
-            }
-            .source-ref-item:last-child { border-bottom: none; }
-            .source-ref-num {
-                color: #999;
-                margin-right: 8px;
-                min-width: 20px;
             }
             
             .container {
@@ -514,11 +440,11 @@
                 <div class="header-info">
                     <div class="info-item">
                         <span class="info-label">报告类型</span>
-                        <span class="info-value">当日汇总</span>
+                        <span class="info-value">实时分析</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">新闻总数</span>
-                        <span class="info-value">191 条</span>
+                        <span class="info-value">15 条</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">热点新闻</span>
@@ -526,51 +452,20 @@
                     </div>
                     <div class="info-item">
                         <span class="info-label">生成时间</span>
-                        <span class="info-value">11-29 22:04</span>
+                        <span class="info-value">11-29 21:23</span>
                     </div>
                 </div>
             </div>
             
             <div class="content">
         <div class="ai-section" style="margin-bottom: 24px; padding: 16px; background: #f3f0ff; border-radius: 8px; border: 1px solid #e9e5ff;">
-            <div style="color: #4f46e5; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+            <div style="color: #4f46e5; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
                 <span>🤖 AI 智能分析</span>
             </div>
-            <div id="ai-content" class="ai-content" style="font-size: 14px; color: #333; line-height: 1.6;"></div>
-            <script>
-                document.getElementById('ai-content').innerHTML = marked.parse(`### 市场情绪与资产表现
-- **核心逻辑**：全球风险偏好显著回升，主要受美联储政策转向预期驱动。芝商所技术故障未改变“万物齐涨”趋势，标普500连续上涨、大宗商品与比特币同步走强，表明确认流动性宽松逻辑。白银与伦铜创历史新高，反映再通胀交易升温。
-- **潜在影响**：若美联储维持宽松立场，股商共振行情或延续；但技术故障事件暴露金融基础设施脆弱性，可能引发监管关注。
+            <div style="font-size: 14px; color: #333; white-space: pre-wrap; line-height: 1.6;">**市场情绪与潜在影响分析：**
 
-### 板块异动与个股聚焦
-- **科技板块分化加剧**：但斌称仅两家国内公司可对标谷歌，暗示头部科技企业稀缺性；Palantir、英伟达等遭做空下跌，显示AI概念股估值压力。英特尔因苹果芯片订单预期暴涨，凸显半导体代工竞争格局生变。
-- **大宗商品结构性机会**：铜供应“史上最紧张”，溢价飙升印证绿色需求（如电网、新能源）与供给瓶颈的矛盾。白银跟涨反映贵金属金融属性与工业属性共振。
-- **中概股与本土科技动态**：大摩调查显示阿里云与千问AI受企业客户关注，美团亏损引发市场对本地生活赛道竞争担忧，滴滴、快手突出AI与出海战略。
-
-### 宏观政策与监管动向
-- **中国强化虚拟货币监管**：央行明确虚拟货币业务属非法金融活动，稳定币被纳入监管范围，旨在防范金融风险与资本外流。
-- **地缘冲突与能源安全**：俄乌冲突升级冲击能源基础设施，黑海油轮遇袭加剧供应链扰动。斯里兰卡紧急状态、特朗普对委内瑞拉表态折射全球政治不确定性。
-- **区域支持政策**：中央协调支援香港火灾救援，在港中资银行加大金融服务力度，体现危机应对中政策托底作用。
-
-### 产业趋势与创新科技
-- **AI产业竞争白热化**：谷歌TPU挑战英伟达霸主地位，阿里、腾讯、字节展开大模型角逐，北京与上海金融科技规模突破千亿，预示算力与算法投资持续高增长。
-- **新兴领域突破**：机器人裁判引入国际大赛、滴滴Robotaxi扩产计划，标志具身智能商业化加速；进口再生纸浆监管共识反映循环经济政策落地。
-
-### 风险提示与不确定性
-- **地缘冲突外溢风险**：俄乌伤亡人数攀升、北约外长会缺席事件，可能加剧能源与粮食价格波动。
-- **市场过度乐观隐患**：资产普涨后若美联储政策不及预期或经济数据恶化，可能触发获利了结。
-- **监管与竞争风险**：科技巨头面临反垄断与数据监管压力，局部行业价格战（如海外大储“内卷”）可能侵蚀利润。
-
-### 社会事件与市场关联
-- **香港火灾善后与市场稳定**：捐助基金与政府拨款达11亿港元，“一户一社工”模式助力社会稳定，短期对香港本地情绪有安抚作用，长期需关注保险业赔付压力与房地产安全监管升级。`);
-            </script>
-            <div class="source-ref">
-                <details>
-                    <summary>查看分析用到的 50 条原始新闻标题</summary>
-                    <ul class="source-ref-list"><li class="source-ref-item"><span class="source-ref-num">1.</span><span>芝商所大宕机无碍“万物齐涨”，标普五连涨，大宗商品、比特币齐升，白银伦铜创新高</span></li><li class="source-ref-item"><span class="source-ref-num">2.</span><span>但斌发声：国内能对标谷歌的公司，我觉得可能只有两家</span></li><li class="source-ref-item"><span class="source-ref-num">3.</span><span>华尔街见闻早餐FM-Radio | 2025年11月29日</span></li><li class="source-ref-item"><span class="source-ref-num">4.</span><span>美联储“救市”成转折点！11月的最后一周，各类资产“强劲反弹”</span></li><li class="source-ref-item"><span class="source-ref-num">5.</span><span>铜供应“史上最紧张”！金属溢价飙至纪录，伦铜创历史新高</span></li><li class="source-ref-item"><span class="source-ref-num">6.</span><span>“大空头”精准狙击！11月，Palantir跌16%，英伟达跌12%，甲骨文跌23%</span></li><li class="source-ref-item"><span class="source-ref-num">7.</span><span>SemiAnalysis深度解读TPU--谷歌冲击“英伟达帝国”</span></li><li class="source-ref-item"><span class="source-ref-num">8.</span><span>重新赢得大客户在望！英特尔暴涨10%，郭明錤料2027年交付苹果M系列芯片</span></li><li class="source-ref-item"><span class="source-ref-num">9.</span><span>央行：虚拟货币相关业务活动属于非法金融活动 稳定币是虚拟货币的一种形式</span></li><li class="source-ref-item"><span class="source-ref-num">10.</span><span>大摩中国CIO调查：B端对千问和阿里云兴趣显著增加，预计三年内千问超越DeepSeek</span></li><li class="source-ref-item"><span class="source-ref-num">11.</span><span>美团：暴亏近200亿！阿里这次真成功偷家了？</span></li><li class="source-ref-item"><span class="source-ref-num">12.</span><span>香港廉政公署就大埔火灾再拘捕3人</span></li><li class="source-ref-item"><span class="source-ref-num">13.</span><span>以色列在加沙地带军事行动已致超7万人死亡</span></li><li class="source-ref-item"><span class="source-ref-num">14.</span><span>俄罗斯大规模袭击乌克兰能源基础设施</span></li><li class="source-ref-item"><span class="source-ref-num">15.</span><span>欧航局双卫星进入轨道 将收集地球水循环数据</span></li><li class="source-ref-item"><span class="source-ref-num">16.</span><span>两部门：紧急协调援助应急装备物资，全力支持香港大埔火灾应对处置后续工作</span></li><li class="source-ref-item"><span class="source-ref-num">17.</span><span>中华慈善总会：已募集近7000万元救灾款物帮扶香港火灾受灾同胞</span></li><li class="source-ref-item"><span class="source-ref-num">18.</span><span>泽连斯基：乌克兰代表团已启程赴美谈判</span></li><li class="source-ref-item"><span class="source-ref-num">19.</span><span>斯里兰卡总统宣布全国进入公共紧急状态</span></li><li class="source-ref-item"><span class="source-ref-num">20.</span><span>我国前10个月乡村消费品零售额5.5万亿元</span></li><li class="source-ref-item"><span class="source-ref-num">21.</span><span>国家消防救援局指导广东消防支援香港多台套救援装备</span></li><li class="source-ref-item"><span class="source-ref-num">22.</span><span>国家金融监督管理总局办公厅：在港中资银行要加大金融服务力度，帮助受影响客户渡过难关</span></li><li class="source-ref-item"><span class="source-ref-num">23.</span><span>乌国家安全与国防委员会秘书乌梅罗夫将率乌代表团与美谈判</span></li><li class="source-ref-item"><span class="source-ref-num">24.</span><span>2025全球开发者先锋大会暨国际具身智能技能大赛12月举行，将首次引入机器人裁判</span></li><li class="source-ref-item"><span class="source-ref-num">25.</span><span>白皮书：上海2024年金融科技产业规模约为4405亿元</span></li><li class="source-ref-item"><span class="source-ref-num">26.</span><span>疯狂动物城2票房破13亿</span></li><li class="source-ref-item"><span class="source-ref-num">27.</span><span>黑海再次发生油轮遭袭事件</span></li><li class="source-ref-item"><span class="source-ref-num">28.</span><span>广州市委常委、南沙区委书记刘炜：希望到2030年，南沙年吞吐量超2600万标箱</span></li><li class="source-ref-item"><span class="source-ref-num">29.</span><span>香港大埔火灾已致128人遇难83人受伤 仍有150人失联</span></li><li class="source-ref-item"><span class="source-ref-num">30.</span><span>香港：此前失踪名单中144人确认安全</span></li><li class="source-ref-item"><span class="source-ref-num">31.</span><span>11月电影总票房（含预售）破30亿元</span></li><li class="source-ref-item"><span class="source-ref-num">32.</span><span>美国国务卿或将“罕见”缺席北约外长会</span></li><li class="source-ref-item"><span class="source-ref-num">33.</span><span>香港特区政府29日下午召开记者会宣布，警方已完成大埔宏福苑火灾中两栋大厦的搜索，并没有发现任何遗体。（新华社）</span></li><li class="source-ref-item"><span class="source-ref-num">34.</span><span>香港特区政府29日下午召开记者会宣布，已开展“一户一社工”工作，已接触1300户、3200人。目前捐助基金和政府拨款已达11亿港元。（新华社）</span></li><li class="source-ref-item"><span class="source-ref-num">35.</span><span>泽连斯基：俄发射约36枚导弹近600架无人机 致乌3人死亡</span></li><li class="source-ref-item"><span class="source-ref-num">36.</span><span>进口再生纸浆监管引关注，业界专家提出《北京共识》</span></li><li class="source-ref-item"><span class="source-ref-num">37.</span><span>时隔285天大盘单日票房再破6亿</span></li><li class="source-ref-item"><span class="source-ref-num">38.</span><span>美媒爆猛料：辞职数小时后，前乌总统办公室主任称要“奔赴前线”</span></li><li class="source-ref-item"><span class="source-ref-num">39.</span><span>北京AI产业规模今年将超4500亿元</span></li><li class="source-ref-item"><span class="source-ref-num">40.</span><span>乌称多地遭袭 基辅超50万用户断电</span></li><li class="source-ref-item"><span class="source-ref-num">41.</span><span>俄称拦截和击落百余架乌无人机</span></li><li class="source-ref-item"><span class="source-ref-num">42.</span><span>中央港澳办协调中央有关部门和广东省继续为香港救灾工作提供协助和支援</span></li><li class="source-ref-item"><span class="source-ref-num">43.</span><span>特朗普称委内瑞拉空域应被视为关闭</span></li><li class="source-ref-item"><span class="source-ref-num">44.</span><span>进击的滴滴：国内扩大盈利，巴西外卖凶猛，明年Robotaxi扩至千辆</span></li><li class="source-ref-item"><span class="source-ref-num">45.</span><span>快手AI化提速：用户生态+广告变现双提升，可灵增长潜力巨大</span></li><li class="source-ref-item"><span class="source-ref-num">46.</span><span>壁垒极高的海外大储也开始内卷了，“元凶”原来是他俩？</span></li><li class="source-ref-item"><span class="source-ref-num">47.</span><span>高盛点评“中国AI大厂之战”：阿里 vs 腾讯 vs 字节</span></li><li class="source-ref-item"><span class="source-ref-num">48.</span><span>美团：暴亏近200亿！阿里这次真成功偷家了？</span></li><li class="source-ref-item"><span class="source-ref-num">49.</span><span>央行：虚拟货币相关业务活动属于非法金融活动 稳定币是虚拟货币的一种形式</span></li><li class="source-ref-item"><span class="source-ref-num">50.</span><span>美团业绩会：对手匆匆忙忙，我们游刃有余</span></li>
-                    </ul>
-                </details>
-            </div></div>
+近期全球市场呈现风险偏好回升态势，尽管芝商所技术故障，但标普五连涨、大宗商品与比特币齐升，反映美联储政策转向预期提振流动性敏感资产。伦铜、白银创新高凸显供应紧张与再通胀交易升温，但"大空头"对科技股（如Palantir、英伟达）的狙击警示估值分歧。国内方面，AI竞赛白热化（阿里千问、谷歌TPU挑战英伟达）与半导体复苏（英特尔）成焦点，但央行重申虚拟货币禁令或抑制加密资产投机。地缘冲突（俄乌、中东）持续扰动能源与供应链，而香港火灾善后凸显区域社会稳定需求。短期看，市场情绪仍受政策宽松与财报业绩驱动，但需警惕地缘黑天鹅及联储预期差引发的波动。</div>
+        </div>
             </div>
             
             <div class="footer">
