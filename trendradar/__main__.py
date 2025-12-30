@@ -123,8 +123,34 @@ class NewsAnalyzer:
         # 初始化存储管理器（使用 AppContext）
         self._init_storage_manager()
 
+        # 初始化 AI 总结器
+        self._init_ai_summarizer()
+
         if self.is_github_actions:
             self._check_version_update()
+
+    def _init_ai_summarizer(self) -> None:
+        """初始化 AI 总结器"""
+        api_key = os.environ.get("SILICONFLOW_API_KEY", "")
+        ai_config = self.ctx.config.get("AI_SUMMARY", {})
+        self.enable_ai_summary = bool(api_key) and ai_config.get("ENABLED", True)
+
+        if self.enable_ai_summary:
+            try:
+                from trendradar.ai import NewsSummarizer
+                model = ai_config.get("MODEL", "deepseek-ai/DeepSeek-V3")
+                self.ai_summarizer = NewsSummarizer(api_key=api_key, model=model)
+                print(f"AI 总结功能已启用，使用模型: {model}")
+            except ImportError as e:
+                print(f"⚠️ AI 模块加载失败: {e}")
+                self.enable_ai_summary = False
+                self.ai_summarizer = None
+        else:
+            self.ai_summarizer = None
+            if not api_key:
+                print("AI 总结功能未启用（未配置 SILICONFLOW_API_KEY）")
+            else:
+                print("AI 总结功能已禁用（AI_SUMMARY.ENABLED=false）")
 
     def _init_storage_manager(self) -> None:
         """初始化存储管理器（使用 AppContext）"""
@@ -375,8 +401,17 @@ class NewsAnalyzer:
                     else:
                         print(f"推送窗口控制：今天首次推送")
 
-            # 准备报告数据
-            report_data = self.ctx.prepare_report(stats, failed_ids, new_titles, id_to_name, mode)
+            # AI 总结处理
+            ai_summary = None
+            if self.enable_ai_summary and self.ai_summarizer:
+                print("正在生成 AI 新闻总结...")
+                ai_summary = self.ai_summarizer.summarize_news(stats)
+
+            # 准备报告数据（传入 AI 总结内容）
+            report_data = self.ctx.prepare_report(
+                stats, failed_ids, new_titles, id_to_name, mode,
+                ai_summary=ai_summary
+            )
 
             # 是否发送版本更新信息
             update_info_to_send = self.update_info if cfg["SHOW_VERSION_UPDATE"] else None

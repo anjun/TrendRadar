@@ -3,6 +3,7 @@
 配置加载模块
 
 负责从 YAML 配置文件和环境变量加载配置。
+支持从 .env 文件加载本地开发配置。
 """
 
 import os
@@ -12,6 +13,53 @@ from typing import Dict, Any, Optional
 import yaml
 
 from .config import parse_multi_account_config, validate_paired_configs
+
+
+def _load_dotenv(env_path: str = ".env") -> bool:
+    """
+    加载 .env 文件到环境变量（简易实现，无需 python-dotenv 依赖）
+
+    Args:
+        env_path: .env 文件路径
+
+    Returns:
+        是否成功加载
+    """
+    env_file = Path(env_path)
+    if not env_file.exists():
+        return False
+
+    loaded_count = 0
+    try:
+        with open(env_file, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                # 跳过空行和注释
+                if not line or line.startswith("#"):
+                    continue
+                # 解析 KEY=VALUE 格式
+                if "=" in line:
+                    key, _, value = line.partition("=")
+                    key = key.strip()
+                    value = value.strip()
+                    # 移除引号
+                    if (value.startswith('"') and value.endswith('"')) or \
+                       (value.startswith("'") and value.endswith("'")):
+                        value = value[1:-1]
+                    # 只有环境变量未设置时才加载
+                    if key and key not in os.environ:
+                        os.environ[key] = value
+                        loaded_count += 1
+        if loaded_count > 0:
+            print(f"📄 从 .env 文件加载了 {loaded_count} 个环境变量")
+        return True
+    except Exception as e:
+        print(f"⚠️ 加载 .env 文件失败: {e}")
+        return False
+
+
+# 模块加载时自动加载 .env 文件
+_load_dotenv()
 
 
 def _get_env_bool(key: str, default: bool = False) -> Optional[bool]:

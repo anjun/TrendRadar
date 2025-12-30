@@ -20,6 +20,7 @@ def prepare_report_data(
     rank_threshold: int = 3,
     matches_word_groups_func: Optional[Callable] = None,
     load_frequency_words_func: Optional[Callable] = None,
+    ai_summary: Optional[str] = None,
 ) -> Dict:
     """
     准备报告数据
@@ -33,6 +34,7 @@ def prepare_report_data(
         rank_threshold: 排名阈值
         matches_word_groups_func: 词组匹配函数
         load_frequency_words_func: 加载频率词函数
+        ai_summary: AI 总结内容（如果有则使用互斥模式）
 
     Returns:
         Dict: 准备好的报告数据
@@ -134,6 +136,7 @@ def prepare_report_data(
         "total_new_count": sum(
             len(source["titles"]) for source in processed_new_titles
         ),
+        "ai_summary": ai_summary,
     }
 
 

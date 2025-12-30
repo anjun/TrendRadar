@@ -22,7 +22,7 @@ def render_feishu_content(
     """渲染飞书通知内容
 
     Args:
-        report_data: 报告数据字典，包含 stats, new_titles, failed_ids, total_new_count
+        report_data: 报告数据字典，包含 stats, new_titles, failed_ids, total_new_count, ai_summary
         update_info: 版本更新信息（可选）
         mode: 报告模式 ("daily", "incremental", "current")
         separator: 内容分隔符
@@ -32,6 +32,22 @@ def render_feishu_content(
     Returns:
         格式化的飞书消息内容
     """
+    # 获取当前时间
+    now = get_time_func() if get_time_func else datetime.now()
+
+    # 🔀 互斥模式：有 AI 总结时只显示总结，否则显示原始新闻
+    if report_data.get("ai_summary"):
+        # AI 模式：只显示 AI 总结内容
+        text_content = "🤖 **AI 热点速览**\n\n"
+        text_content += report_data["ai_summary"]
+        text_content += f"\n\n<font color='grey'>更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}</font>"
+
+        if update_info:
+            text_content += f"\n<font color='grey'>TrendRadar 发现新版本 {update_info['remote_version']}，当前 {update_info['current_version']}</font>"
+
+        return text_content
+
+    # 原始模式：显示热点词汇统计和新增新闻
     # 生成热点词汇统计部分
     stats_content = ""
     if report_data["stats"]:
@@ -122,8 +138,6 @@ def render_feishu_content(
         for i, id_value in enumerate(report_data["failed_ids"], 1):
             text_content += f"  • <font color='red'>{id_value}</font>\n"
 
-    # 获取当前时间
-    now = get_time_func() if get_time_func else datetime.now()
     text_content += (
         f"\n\n<font color='grey'>更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}</font>"
     )
@@ -144,7 +158,7 @@ def render_dingtalk_content(
     """渲染钉钉通知内容
 
     Args:
-        report_data: 报告数据字典，包含 stats, new_titles, failed_ids, total_new_count
+        report_data: 报告数据字典，包含 stats, new_titles, failed_ids, total_new_count, ai_summary
         update_info: 版本更新信息（可选）
         mode: 报告模式 ("daily", "incremental", "current")
         reverse_content_order: 是否反转内容顺序（新增在前）
@@ -153,10 +167,24 @@ def render_dingtalk_content(
     Returns:
         格式化的钉钉消息内容
     """
+    now = get_time_func() if get_time_func else datetime.now()
+
+    # 🔀 互斥模式：有 AI 总结时只显示总结，否则显示原始新闻
+    if report_data.get("ai_summary"):
+        # AI 模式：只显示 AI 总结内容
+        text_content = "🤖 **AI 热点速览**\n\n"
+        text_content += report_data["ai_summary"]
+        text_content += f"\n\n> 更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}"
+
+        if update_info:
+            text_content += f"\n> TrendRadar 发现新版本 **{update_info['remote_version']}**，当前 **{update_info['current_version']}**"
+
+        return text_content
+
+    # 原始模式：显示热点词汇统计和新增新闻
     total_titles = sum(
         len(stat["titles"]) for stat in report_data["stats"] if stat["count"] > 0
     )
-    now = get_time_func() if get_time_func else datetime.now()
 
     # 头部信息
     header_content = f"**总新闻数：** {total_titles}\n\n"

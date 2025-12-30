@@ -242,6 +242,7 @@ class AppContext:
         new_titles: Optional[Dict] = None,
         id_to_name: Optional[Dict] = None,
         mode: str = "daily",
+        ai_summary: Optional[str] = None,
     ) -> Dict:
         """准备报告数据"""
         return prepare_report_data(
@@ -253,6 +254,7 @@ class AppContext:
             rank_threshold=self.rank_threshold,
             matches_word_groups_func=self.matches_word_groups,
             load_frequency_words_func=self.load_frequency_words,
+            ai_summary=ai_summary,
         )
 
     def generate_html(
