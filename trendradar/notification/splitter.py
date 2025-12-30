@@ -62,10 +62,41 @@ def split_content_into_batches(
 
     batches = []
 
+    now = get_time_func() if get_time_func else datetime.now()
+
+    # 🔀 互斥模式：有 AI 总结时只返回 AI 总结内容，不进行复杂分批
+    if report_data.get("ai_summary"):
+        ai_content = "🤖 **AI 热点速览**\n\n"
+        ai_content += report_data["ai_summary"]
+
+        # 添加时间戳
+        if format_type == "feishu":
+            ai_content += f"\n\n<font color='grey'>更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}</font>"
+            if update_info:
+                ai_content += f"\n<font color='grey'>TrendRadar 发现新版本 {update_info['remote_version']}，当前 {update_info['current_version']}</font>"
+        elif format_type == "dingtalk":
+            ai_content += f"\n\n> 更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}"
+            if update_info:
+                ai_content += f"\n> TrendRadar 发现新版本 **{update_info['remote_version']}**，当前 **{update_info['current_version']}**"
+        elif format_type == "telegram":
+            ai_content += f"\n\n更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}"
+            if update_info:
+                ai_content += f"\nTrendRadar 发现新版本 {update_info['remote_version']}，当前 {update_info['current_version']}"
+        elif format_type == "slack":
+            ai_content += f"\n\n_更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}_"
+            if update_info:
+                ai_content += f"\n_TrendRadar 发现新版本 *{update_info['remote_version']}*，当前 *{update_info['current_version']}*_"
+        else:
+            # wework, bark, ntfy 等
+            ai_content += f"\n\n> 更新时间：{now.strftime('%Y-%m-%d %H:%M:%S')}"
+            if update_info:
+                ai_content += f"\n> TrendRadar 发现新版本 **{update_info['remote_version']}**，当前 **{update_info['current_version']}**"
+
+        return [ai_content]
+
     total_titles = sum(
         len(stat["titles"]) for stat in report_data["stats"] if stat["count"] > 0
     )
-    now = get_time_func() if get_time_func else datetime.now()
 
     base_header = ""
     if format_type in ("wework", "bark"):
