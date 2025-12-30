@@ -79,6 +79,9 @@ def load_frequency_words(
         if current_section == "GLOBAL_FILTER":
             # 直接添加所有非空行到全局过滤列表
             for line in lines:
+                # 处理行尾注释：移除 # 及其后的内容
+                if "#" in line:
+                    line = line.split("#")[0].strip()
                 # 忽略特殊语法前缀，只提取纯文本
                 if line.startswith(("!", "+", "@")):
                     continue  # 全局过滤区不支持特殊语法
@@ -87,7 +90,18 @@ def load_frequency_words(
             continue
 
         # 处理词组区域
-        words = lines
+        # 过滤掉整行注释，并处理行尾注释
+        cleaned_words = []
+        for word in lines:
+            # 处理行尾注释
+            if "#" in word:
+                word = word.split("#")[0].strip()
+            # 跳过整行注释（处理后为空）
+            if not word:
+                continue
+            cleaned_words.append(word)
+        words = cleaned_words
+
 
         group_required_words = []
         group_normal_words = []
