@@ -9,6 +9,13 @@ app:
   # 完整时区列表: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   timezone: "Asia/Shanghai"
 
+
+# AI 总结配置
+ai_summary:
+  enabled: true
+  model: "deepseek-chat"  # DeepSeek 官方模型名称
+  base_url: "https://api.deepseek.com/v1"
+
 # 存储配置
 storage:
   # 存储后端选择: local / remote / auto

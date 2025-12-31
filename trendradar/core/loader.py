@@ -173,6 +173,18 @@ def _load_weight_config(config_data: Dict) -> Dict:
     }
 
 
+def _load_ai_summary_config(config_data: Dict) -> Dict:
+    """加载 AI 总结配置"""
+    ai_summary = config_data.get("ai_summary", {})
+    enabled_env = _get_env_bool("AI_SUMMARY_ENABLED")
+
+    return {
+        "ENABLED": enabled_env if enabled_env is not None else ai_summary.get("enabled", True),
+        "MODEL": _get_env_str("AI_SUMMARY_MODEL") or ai_summary.get("model", "deepseek-ai/DeepSeek-V3"),
+        "BASE_URL": _get_env_str("AI_SUMMARY_BASE_URL") or ai_summary.get("base_url", "https://api.deepseek.com"),
+    }
+
+
 def _load_storage_config(config_data: Dict) -> Dict:
     """加载存储配置"""
     storage = config_data.get("storage", {})
@@ -370,6 +382,9 @@ def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
 
     # 存储配置
     config["STORAGE"] = _load_storage_config(config_data)
+
+    # AI 总结配置
+    config["AI_SUMMARY"] = _load_ai_summary_config(config_data)
 
     # Webhook 配置
     config.update(_load_webhook_config(config_data))
