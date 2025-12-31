@@ -7,7 +7,7 @@
 
 from typing import List, Dict, Optional
 
-from trendradar.ai.client import SiliconFlowClient
+from trendradar.ai.client import DeepSeekClient
 
 
 class NewsSummarizer:
@@ -47,7 +47,7 @@ class NewsSummarizer:
             api_key: API 密钥
             model: 模型名称
         """
-        self.client = SiliconFlowClient(api_key=api_key, model=model)
+        self.client = DeepSeekClient(api_key=api_key, model=model)
 
     def summarize_news(
         self,

@@ -1,6 +1,6 @@
 # coding=utf-8
 """
-硅基流动 API 客户端
+DeepSeek 官方 API 客户端
 
 兼容 OpenAI API 格式，调用 DeepSeek V3 模型
 """
@@ -12,11 +12,11 @@ from typing import Optional, List, Dict, Any
 import requests
 
 
-class SiliconFlowClient:
-    """硅基流动 API 客户端"""
+class DeepSeekClient:
+    """DeepSeek 官方 API 客户端"""
 
-    DEFAULT_BASE_URL = "https://api.siliconflow.cn/v1"
-    DEFAULT_MODEL = "deepseek-ai/DeepSeek-V3"
+    DEFAULT_BASE_URL = "https://api.deepseek.com/v1"
+    DEFAULT_MODEL = "deepseek-chat"
 
     def __init__(
         self,
@@ -29,18 +29,18 @@ class SiliconFlowClient:
         初始化客户端
 
         Args:
-            api_key: API 密钥，默认从环境变量 SILICONFLOW_API_KEY 获取
+            api_key: API 密钥，默认从环境变量 DEEPSEEK_API_KEY 获取
             base_url: API 基础 URL
             model: 模型名称
             timeout: 请求超时时间（秒）
         """
-        self.api_key = api_key or os.environ.get("SILICONFLOW_API_KEY", "")
+        self.api_key = api_key or os.environ.get("DEEPSEEK_API_KEY", "")
         self.base_url = base_url or self.DEFAULT_BASE_URL
-        self.model = model or os.environ.get("SILICONFLOW_MODEL", self.DEFAULT_MODEL)
+        self.model = model or os.environ.get("DEEPSEEK_MODEL", self.DEFAULT_MODEL)
         self.timeout = timeout
 
         if not self.api_key:
-            print("⚠️ 警告: 未配置 SILICONFLOW_API_KEY，AI 总结功能将不可用")
+            print("⚠️ 警告: 未配置 DEEPSEEK_API_KEY，AI 总结功能将不可用")
 
     def chat_completion(
         self,

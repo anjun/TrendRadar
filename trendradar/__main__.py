@@ -131,7 +131,7 @@ class NewsAnalyzer:
 
     def _init_ai_summarizer(self) -> None:
         """初始化 AI 总结器"""
-        api_key = os.environ.get("SILICONFLOW_API_KEY", "")
+        api_key = os.environ.get("DEEPSEEK_API_KEY", "")
         ai_config = self.ctx.config.get("AI_SUMMARY", {})
         self.enable_ai_summary = bool(api_key) and ai_config.get("ENABLED", True)
 
@@ -148,7 +148,7 @@ class NewsAnalyzer:
         else:
             self.ai_summarizer = None
             if not api_key:
-                print("AI 总结功能未启用（未配置 SILICONFLOW_API_KEY）")
+                print("AI 总结功能未启用（未配置 DEEPSEEK_API_KEY）")
             else:
                 print("AI 总结功能已禁用（AI_SUMMARY.ENABLED=false）")
 
