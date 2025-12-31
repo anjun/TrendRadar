@@ -23,7 +23,7 @@ class SiliconFlowClient:
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         model: Optional[str] = None,
-        timeout: int = 60,
+        timeout: int = 300,
     ):
         """
         初始化客户端
